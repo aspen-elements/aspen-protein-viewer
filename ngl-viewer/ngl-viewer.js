@@ -5,10 +5,10 @@ import { classMap } from "lit-html/directives/class-map";
 import "./ngl-no-data-card";
 import * as NGL from "./ngl.esm";
 
-import { resetCSS } from "../../utils/cssMixin";
-import { STRUCTURES } from "../../constants/lang";
-import { isObjectEmpty, areObjectsEqual } from "../../utils/objects";
-import { debounce, doubleRaf, convertToDomain } from "../../utils/mics";
+import { STRUCTURES } from "../lang/en";
+import { resetCSS } from "../utils/cssMixin";
+import { isObjectEmpty, areObjectsEqual } from "../utils/objects";
+import { debounce, doubleRaf, convertToDomain } from "../utils/misc";
 
 /**
  * Component to render the 3D structure of the target.

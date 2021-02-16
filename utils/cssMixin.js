@@ -1,5 +1,10 @@
-import { css } from 'lit-element';
+import { css } from "lit-element";
 
+/**
+ * CSS to reset margin, padding and box-sizing style.
+ *
+ * @return {CSSResult}
+ */
 export const resetCSS = css`
   :host,
   * {
@@ -8,4 +13,3 @@ export const resetCSS = css`
     box-sizing: border-box;
   }
 `;
-

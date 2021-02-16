@@ -2,7 +2,7 @@ import { nothing } from 'lit-html'
 import { LitElement, css, html } from 'lit-element'
 
 import './empty-state-structure'
-import { isEmpty as isStringEmpty } from './utils'
+import { isEmpty as isStringEmpty } from '../utils/misc'
 
 /**
  * No Project Card
