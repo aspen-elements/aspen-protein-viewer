@@ -2,15 +2,18 @@
 
 ## About
 
-This repository has all the common front-end components required for the modules in the DELPHI application.
+This repository for 3D Protein Viewer.
 
 ## Install this with the command 
 
-```npm i aspen-elements/aspen-protein-viewer```
+```npm i github:aspen-elements/aspen-protein-viewer```
 
 ## To use this import this to any component
 
 ```import 'aspen-protein-viewer/<components/utils/constants>/<component/util/constant>';```
+
+### example
+```import 'aspen-protein-viewer/ngl-viewer';```
 
 ## To see the docs
 
