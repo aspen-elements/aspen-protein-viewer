@@ -1,20 +1,51 @@
-# aspen-protein-viewer
+# Aspen-Protein-Viewer
 
-## About
+Component to render the 3D structure of the target.
 
-This repository for 3D Protein Viewer.
+# Installation and usage
 
-## Install this with the command 
+Install this component using either of the following command
 
-```npm i github:aspen-elements/aspen-protein-viewer```
+```
+npm i github:aspen-elements/aspen-protein-viewer
 
-## To use this import this to any component
+yarn add github:aspen-elements/aspen-protein-viewer
+```
 
-```import 'aspen-protein-viewer/<components/utils/constants>/<component/util/constant>';```
+Then use it in your app:
 
-### example
-```import 'aspen-protein-viewer/ngl-viewer';```
+```js
+import { LitElement, html } from "lit-element";
+import "aspen-protein-viewer/ngl-viewer";
 
-## To see the docs
+class DemoClass extends LitElement {
+  static get styles() {
+    return css`
+      .ngl-viewer-wrapper {
+        width: 400px;
+        height: 400px;
+      }
+    `;
+  }
 
-```yarn docs```
+  render() {
+    return html`
+      <div class="ngl-viewer-wrapper">
+        <ngl-viewer dataResource="rcsb://4F0I"> </ngl-viewer>
+      </div>
+    `;
+  }
+}
+
+customElements.define("demo-class", NGLViewer);
+```
+
+## Props
+
+| Props               | Type     | Description                                                        |
+| ------------------- | -------- | ------------------------------------------------------------------ |
+| dataResource        | String   | (Required) Holds the resource object, for example: `"rcsb://4f0i"` |
+| domainOrganizations | Array    | (Optional) Array to represent domain organization                  |
+| error               | Object   | (Optional) Error state                                             |
+| onUpdate            | Function | (Optional) Function to handle loader                               |
+
