@@ -52,18 +52,32 @@ class NglViewer extends LitElement {
   static get properties() {
     return {
       /**
-       * Holds the resource object, for example: `rcsb://4f0i`.
+       * Holds the protein data bank's ID, for example: `rcsb://4f0i`.
        *
        * @type {string}
        */
-      dataResource: String,
+      pdbID: String,
 
       /**
        * Array to represent domain organizations.
        *
-       * @type {{domainOrganizations: Array}}
+       * @type {{colorRegistry: Array}}
        */
-      domainOrganizations: Array,
+      colorRegistry: Array,
+
+      /**
+       * To handle load complete.
+       *
+       * @type {function }
+       */
+      onLoadSuccess: Function,
+
+      /**
+       * Function to handle error
+       *
+       * @type {function }
+       */
+      onLoadFail: Function,
 
       /**
        * Error state.
@@ -73,11 +87,11 @@ class NglViewer extends LitElement {
       error: Object,
 
       /**
-       * To handle loader.
+       * Loading state
        *
-       * @type {function }
+       * @type {Boolean }
        */
-      onUpdate: Function,
+      isLoading: Boolean,
     };
   }
 
@@ -112,10 +126,13 @@ class NglViewer extends LitElement {
 
     this.stage = {};
 
-    this.dataResource = "";
-    this.domainOrganizations = [];
+    this.pdbID = "";
     this.error = {};
-    this.onUpdate = () => {};
+    this.isLoading = true;
+    this.colorRegistry = [];
+
+    this.onLoadFail = () => {};
+    this.onLoadSuccess = () => {};
 
     this.onResize = debounce(this.onResize.bind(this), 100);
     this.update3DStructure = debounce(this.update3DStructure.bind(this), 500);
@@ -169,9 +186,7 @@ class NglViewer extends LitElement {
 
     changedProperties.delete("error");
 
-    if (changedProperties.size) {
-      this.update3DStructure();
-    }
+    if (changedProperties.size) this.update3DStructure();
   }
 
   /**
@@ -189,7 +204,11 @@ class NglViewer extends LitElement {
   handleError(event) {
     const error = { type: event.type, message: event.message };
 
+    this.onLoadFail();
+    this.isLoading = false;
+
     if (!areObjectsEqual(error, this.constructor.error404)) {
+      this.error = error;
       return true;
     }
 
@@ -197,8 +216,6 @@ class NglViewer extends LitElement {
     event.stopPropagation();
 
     this.error = error;
-    this.onUpdate();
-
     return false;
   }
 
@@ -209,11 +226,19 @@ class NglViewer extends LitElement {
     this.stage.removeAllComponents();
 
     doubleRaf(() =>
-      this.load3DView().then(() => {
-        doubleRaf(() => this.stage.handleResize());
-        this.error = {};
-        this.onUpdate();
-      })
+      this.load3DView()
+        .then(() => {
+          doubleRaf(() => this.stage.handleResize());
+          this.error = {};
+          this.onLoadSuccess();
+        })
+        .catch((error) => {
+          this.error = error;
+          this.onLoadFail();
+        })
+        .finally(() => {
+          this.isLoading = false;
+        })
     );
   }
 
@@ -221,7 +246,7 @@ class NglViewer extends LitElement {
    * Load the 3D view in the Stage.
    */
   load3DView() {
-    const domains = this.domainOrganizations.map(convertToDomain);
+    const domains = this.colorRegistry.map(convertToDomain);
 
     const schemeId = NGL.ColormakerRegistry.addScheme(function (params) {
       this.atomColor = (atom) => {
@@ -237,7 +262,7 @@ class NglViewer extends LitElement {
 
     return (
       this.stage &&
-      this.stage.loadFile(this.dataResource).then((o) => {
+      this.stage.loadFile(this.pdbID).then((o) => {
         o.addRepresentation("cartoon", {
           color: schemeId,
         });
@@ -255,22 +280,28 @@ class NglViewer extends LitElement {
     const hasError = !isObjectEmpty(this.error);
 
     const viewportClassMap = {
-      hidden: hasError,
+      hidden: hasError || this.isLoading,
     };
 
     return html`
       <div class="${classMap(viewportClassMap)}" id="viewport"></div>
 
-      ${!hasError
-        ? nothing
-        : html`
+      ${hasError
+        ? html` <div class="dead-center-middle">
+            <ngl-no-data-card
+              message="${STRUCTURES.ERROR_MESSAGE}"
+              description="${STRUCTURES.ERROR_DESCRIPTION}"
+            ></ngl-no-data-card>
+          </div>`
+        : this.isLoading
+        ? html`
             <div class="dead-center-middle">
               <ngl-no-data-card
-                message="${STRUCTURES.ERROR_MESSAGE}"
-                description="${STRUCTURES.ERROR_DESCRIPTION}"
+                message="${STRUCTURES.LOADING}"
               ></ngl-no-data-card>
             </div>
-          `}
+          `
+        : nothing}
     `;
   }
 }
