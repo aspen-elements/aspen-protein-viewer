@@ -185,6 +185,7 @@ class NglViewer extends LitElement {
     super.updated(changedProperties);
 
     changedProperties.delete("error");
+    changedProperties.delete("isLoading");
 
     if (changedProperties.size) this.update3DStructure();
   }
